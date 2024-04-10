@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { collection, getDocs, deleteDoc, doc} from 'firebase/firestore';
+import { collection, getDocs, deleteDoc, doc, getDoc} from 'firebase/firestore';
 import db from '../firebase';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+import EditModal from './EditModal';
 
 const DataViewer = () => {
     const [pagos, setPagos] = useState([]);
+    const [showModal, setShowModal] = useState(false);
+    const [selectedPayment, setSelectedPayment] = useState(null);
+
+    
 
     useEffect(() => {
         const fetchPagos = async () => {
@@ -31,6 +36,35 @@ const DataViewer = () => {
         }
     };
 
+    const handleEditClick = async (id) => {
+        try {
+            const docSnapshot = await getDoc(doc(db,"pagos",id));
+            if (docSnapshot.exists()) {
+                setSelectedPayment({ id: docSnapshot.id, ...docSnapshot.data() });
+                setShowModal(true);
+                console.log("Se activo el edit")
+                console.log(selectedPayment)
+            } else {
+                console.error('El documento no existe.');
+            }
+        } catch (error) {
+            console.error('Error al obtener el pago:', error);
+        }
+    };
+
+    const handleCloseModal = () => {
+        setSelectedPayment(null);
+        setShowModal(false);
+    };
+
+    const handleSaveChanges =  () => {
+        // Aquí puedes implementar la lógica para guardar los cambios en el documento de Firestore
+        handleCloseModal();
+    };
+
+
+  
+
     return (
         <div className="container" style={{ margin: "0 10% 0 10%" }}>
             <div className="row justify-content-center">
@@ -50,8 +84,8 @@ const DataViewer = () => {
                                 <tr key={pago.id}>
                                     <td>
                                         {pago.servicio}
-                                        <button className="btn btn-primary ml-2">
-                                            <FontAwesomeIcon icon={faEdit} />
+                                        <button className="btn btn-primary ml-2" onClick={() => handleEditClick(pago.id)}>
+                                            <FontAwesomeIcon icon={faEdit}/>
                                         </button>
                                         <button className="btn btn-danger ml-2" onClick={() => handleDelete(pago.id)}>
                                             <FontAwesomeIcon icon={faTrash} />
@@ -66,6 +100,7 @@ const DataViewer = () => {
                     </table>
                 </div>
             </div>
+            {showModal && selectedPayment && (<EditModal payment={selectedPayment} handleClose={handleCloseModal} handleSave={handleSaveChanges}></EditModal>)}
         </div>
     );
 };
