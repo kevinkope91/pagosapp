@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {collection, addDoc} from "firebase/firestore"
+import { collection, addDoc } from "firebase/firestore"
 import db from '../firebase';
 
 const PaymentForm = () => {
@@ -8,19 +8,24 @@ const PaymentForm = () => {
     const [servicio, setServicio] = useState('');
     const [metodoPago, setMetodoPago] = useState('');
 
+
+    const clearFields = () => {
+        setMonto(''); // Limpiar el campo después de enviar el formulario
+        setFechaPago(''); // Limpiar el campo después de enviar el formulario
+        setServicio(''); // Limpiar el campo después de enviar el formulario
+        setMetodoPago(''); // Limpiar el campo después de enviar el formulario
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await addDoc(collection(db,"pagos"),{
+            await addDoc(collection(db, "pagos"), {
                 monto: monto,
                 fechapago: fechaPago,
                 servicio: servicio,
                 metodopago: metodoPago
             })
-            setMonto(''); // Limpiar el campo después de enviar el formulario
-            setFechaPago(''); // Limpiar el campo después de enviar el formulario
-            setServicio(''); // Limpiar el campo después de enviar el formulario
-            setMetodoPago(''); // Limpiar el campo después de enviar el formulario
+            clearFields();
             alert('Nombre agregado exitosamente');
         } catch (error) {
             console.error('Error al agregar nombre:', error);

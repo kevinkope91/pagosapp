@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, getDocs, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, deleteDoc, doc} from 'firebase/firestore';
 import db from '../firebase';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -23,7 +23,7 @@ const DataViewer = () => {
 
     const handleDelete = async (id) => {
         try {
-            await deleteDoc(collection(db, 'pagos').doc(id));
+            await deleteDoc(doc(db,"pagos",id));
             const updatedPagos = pagos.filter(pago => pago.id !== id);
             setPagos(updatedPagos);
         } catch (error) {
@@ -43,7 +43,6 @@ const DataViewer = () => {
                                 <th>Monto</th>
                                 <th>Fecha Pago</th>
                                 <th>Método de Pago</th>
-                                <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
