@@ -25,7 +25,7 @@ const EditModal = ({ payment, handleClose, handleSave }) => {
             <div className="modal-content">
                 <span className="close" onClick={handleClose}>&times;</span>
                 <h2>Editar Pago</h2>
-                {/* <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit}>
                     <div>
                         <label htmlFor="monto">Monto:</label>
                         <input type="number" id="monto" name="monto" value={editedPayment.monto} onChange={handleChange} required />
@@ -46,7 +46,7 @@ const EditModal = ({ payment, handleClose, handleSave }) => {
                         <button type="submit">Guardar Cambios</button>
                         <button type="button" onClick={handleClose}>Salir</button>
                     </div>
-                </form> */}
+                </form>
 
                 
             </div>
