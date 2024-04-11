@@ -9,23 +9,24 @@ const DataViewer = () => {
     const [pagos, setPagos] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [selectedPayment, setSelectedPayment] = useState(null);
-
+    const [loading, setLoading] = useState(true);
 
 
     useEffect(() => {
-        const fetchPagos = async () => {
-            try {
-                const querySnapshot = await getDocs(collection(db, 'pagos'));
-                const pagoData = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-                setPagos(pagoData);
-            } catch (error) {
-                console.error('Error al obtener los pagos:', error);
-            }
-        };
-
+       
         fetchPagos();
     }, []);
 
+    const fetchPagos = async () => {
+        try {
+            const querySnapshot = await getDocs(collection(db, 'pagos'));
+            const pagoData = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+            setPagos(pagoData);
+            setLoading(false);
+        } catch (error) {
+            console.error('Error al obtener los pagos:', error);
+        }
+    };
     const handleDelete = async (id) => {
         try {
             await deleteDoc(doc(db, "pagos", id));
@@ -68,7 +69,9 @@ const DataViewer = () => {
     return (
         <>
             <div className="container" style={{ margin: "0 10% 0 10%" }}>
-                <div className="row justify-content-center">
+                {
+                    !loading ? 
+                    <div className="row justify-content-center">
                     <div className="col">
                         <h2 className="text-center">Tabla de Pagos</h2>
                         <table className="table">
@@ -101,9 +104,13 @@ const DataViewer = () => {
                         </table>
                     </div>
                 </div>
+                : <div>CARGANDO</div>
+                }
+                
 
             </div>
-            {showModal && selectedPayment && (<EditModal payment={selectedPayment} handleClose={handleCloseModal} handleSave={handleSaveChanges}></EditModal>)}</>
+            {showModal && selectedPayment && (<EditModal payment={selectedPayment} showed={showModal} handleClose={handleCloseModal} handleSave={handleSaveChanges}></EditModal>)}
+        </>
     );
 };
 

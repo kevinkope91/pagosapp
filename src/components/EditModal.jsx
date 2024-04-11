@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const EditModal = ({ payment, handleClose, handleSave }) => {
+const EditModal = ({ showed, payment, handleClose, handleSave }) => {
     const [editedPayment, setEditedPayment] = useState(payment);
 
     useEffect(() => {
@@ -21,7 +21,9 @@ const EditModal = ({ payment, handleClose, handleSave }) => {
     };
 
     return (
-        <div className="modal">
+        <div className="modal" style={{display: showed ? 'flex' : 'none'}} >
+            <div class="modal-dialog" role="document">
+
             <div className="modal-content">
                 <span className="close" onClick={handleClose}>&times;</span>
                 <h2>Editar Pago</h2>
@@ -50,6 +52,7 @@ const EditModal = ({ payment, handleClose, handleSave }) => {
 
                 
             </div>
+        </div>
         </div>
     );
 };
