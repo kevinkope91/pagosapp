@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, getDocs, deleteDoc, doc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
 import db from '../firebase';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -13,7 +13,7 @@ const DataViewer = () => {
 
 
     useEffect(() => {
-       
+
         fetchPagos();
     }, []);
 
@@ -44,7 +44,7 @@ const DataViewer = () => {
                 setSelectedPayment({ id: docSnapshot.id, ...docSnapshot.data() });
                 setShowModal(true);
                 console.log("Se activo el edit")
-                console.log(selectedPayment)
+                console.log("Este es els selected paymente del handeleEdit: ",selectedPayment)
             } else {
                 console.error('El documento no existe.');
             }
@@ -58,9 +58,27 @@ const DataViewer = () => {
         setShowModal(false);
     };
 
-    const handleSaveChanges = () => {
-        // Aquí puedes implementar la lógica para guardar los cambios en el documento de Firestore
-        handleCloseModal();
+    const handleSaveChanges = async (data) => {
+        try {
+            // Realizar aquí la lógica para guardar los cambios en Firestore
+            
+            if (data) {
+                const { id, ...updatedPayment } = data;
+                await updateDoc(doc(db, "pagos", id), updatedPayment);
+                const updatedPagos = pagos.map(pago => {
+                    if (pago.id === id) {
+                        return { id, ...updatedPayment };
+                    }
+                    return pago;
+                });
+                setPagos(updatedPagos);
+                handleCloseModal();
+            } else {
+                console.error('No se ha seleccionado ningún pago para guardar cambios.');
+            }
+        } catch (error) {
+            console.error('Error al guardar los cambios en el pago:', error);
+        }
     };
 
 
@@ -70,43 +88,43 @@ const DataViewer = () => {
         <>
             <div className="container" style={{ margin: "0 10% 0 10%" }}>
                 {
-                    !loading ? 
-                    <div className="row justify-content-center">
-                    <div className="col">
-                        <h2 className="text-center">Tabla de Pagos</h2>
-                        <table className="table">
-                            <thead className="thead-dark">
-                                <tr>
-                                    <th>Servicio</th>
-                                    <th>Monto</th>
-                                    <th>Fecha Pago</th>
-                                    <th>Método de Pago</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {pagos.map((pago) => (
-                                    <tr key={pago.id}>
-                                        <td>
-                                            {pago.servicio}
-                                            <button className="btn btn-primary ml-2" onClick={() => handleEditClick(pago.id)}>
-                                                <FontAwesomeIcon icon={faEdit} />
-                                            </button>
-                                            <button className="btn btn-danger ml-2" onClick={() => handleDelete(pago.id)}>
-                                                <FontAwesomeIcon icon={faTrash} />
-                                            </button>
-                                        </td>
-                                        <td>{pago.monto}</td>
-                                        <td>{pago.fechapago}</td>
-                                        <td>{pago.metodopago}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                : <div>CARGANDO</div>
+                    !loading ?
+                        <div className="row justify-content-center">
+                            <div className="col">
+                                <h2 className="text-center">Tabla de Pagos</h2>
+                                <table className="table">
+                                    <thead className="thead-dark">
+                                        <tr>
+                                            <th>Servicio</th>
+                                            <th>Monto</th>
+                                            <th>Fecha Pago</th>
+                                            <th>Método de Pago</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {pagos.map((pago) => (
+                                            <tr key={pago.id}>
+                                                <td>
+                                                    {pago.servicio}
+                                                    <button className="btn btn-primary ml-2" onClick={() => handleEditClick(pago.id)}>
+                                                        <FontAwesomeIcon icon={faEdit} />
+                                                    </button>
+                                                    <button className="btn btn-danger ml-2" onClick={() => handleDelete(pago.id)}>
+                                                        <FontAwesomeIcon icon={faTrash} />
+                                                    </button>
+                                                </td>
+                                                <td>{pago.monto}</td>
+                                                <td>{pago.fechapago}</td>
+                                                <td>{pago.metodopago}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        : <div>CARGANDO</div>
                 }
-                
+
 
             </div>
             {showModal && selectedPayment && (<EditModal payment={selectedPayment} showed={showModal} handleClose={handleCloseModal} handleSave={handleSaveChanges}></EditModal>)}

@@ -17,12 +17,13 @@ const EditModal = ({ showed, payment, handleClose, handleSave }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        console.log("editpayment de editmodal:",editedPayment)
         handleSave(editedPayment);
     };
 
     return (
         <div className="modal" style={{display: showed ? 'flex' : 'none'}} >
-            <div class="modal-dialog" role="document">
+            <div className="modal-dialog" role="document">
 
             <div className="modal-content">
                 <span className="close" onClick={handleClose}>&times;</span>
@@ -45,7 +46,7 @@ const EditModal = ({ showed, payment, handleClose, handleSave }) => {
                         <input type="text" id="metodoPago" name="metodoPago" value={editedPayment.metodopago} onChange={handleChange} required />
                     </div>
                     <div>
-                        <button type="submit">Guardar Cambios</button>
+                        <button type="button" onClick={handleSubmit}>Guardar Cambios</button>
                         <button type="button" onClick={handleClose}>Salir</button>
                     </div>
                 </form>
