@@ -1,17 +1,16 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './Home';
-import PaymentForm from './PaymentForm'
-import PaymentTable from './PaymentTable'
+import PaymentTable from './PaymentTable';
+import PaymentForm from './PaymentForm';
 
 const App = () => {
   return (
     <Router>
-      <Switch>
-        <Route exact path="/" component={Home} />
-        <Route path="/pagos" component={PaymentTable} />
-        <Route path="/nuevo-pago" component={PaymentForm} />
-      </Switch>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/pagos" element={<PaymentTable />} />
+        <Route path="/nuevo-pago" element={<PaymentForm />} />
+      </Routes>
     </Router>
   );
 };
