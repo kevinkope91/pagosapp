@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { collection, getDocs, deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
 import db from '../firebase';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import EditModal from './EditModal';
 
 const DataViewer = () => {
@@ -11,9 +12,7 @@ const DataViewer = () => {
     const [selectedPayment, setSelectedPayment] = useState(null);
     const [loading, setLoading] = useState(true);
 
-
     useEffect(() => {
-
         fetchPagos();
     }, []);
 
@@ -27,6 +26,7 @@ const DataViewer = () => {
             console.error('Error al obtener los pagos:', error);
         }
     };
+
     const handleDelete = async (id) => {
         try {
             await deleteDoc(doc(db, "pagos", id));
@@ -44,7 +44,7 @@ const DataViewer = () => {
                 setSelectedPayment({ id: docSnapshot.id, ...docSnapshot.data() });
                 setShowModal(true);
                 console.log("Se activo el edit")
-                console.log("Este es els selected paymente del handeleEdit: ",selectedPayment)
+                console.log("Este es els selected paymente del handeleEdit: ", selectedPayment)
             } else {
                 console.error('El documento no existe.');
             }
@@ -60,8 +60,6 @@ const DataViewer = () => {
 
     const handleSaveChanges = async (data) => {
         try {
-            // Realizar aquí la lógica para guardar los cambios en Firestore
-            
             if (data) {
                 const { id, ...updatedPayment } = data;
                 await updateDoc(doc(db, "pagos", id), updatedPayment);
@@ -81,17 +79,19 @@ const DataViewer = () => {
         }
     };
 
-
-
-
     return (
         <>
+            {/* Botón de regreso */}
+            <Link to="/" className="btn btn-secondary position-absolute start-0 top-0 m-3">
+                <FontAwesomeIcon icon={faArrowLeft} />
+            </Link>
+            {/* Fin del botón de regreso */}
             <div className="container" style={{ margin: "0 10% 0 10%" }}>
                 {
                     !loading ?
                         <div className="row justify-content-center">
                             <div className="col">
-                                <h2 className="text-center">Tabla de Pagos</h2>
+                                <h2 className="text-center mt-2">Tabla de Pagos</h2>
                                 <table className="table">
                                     <thead className="thead-dark">
                                         <tr>
@@ -104,14 +104,18 @@ const DataViewer = () => {
                                     <tbody>
                                         {pagos.map((pago) => (
                                             <tr key={pago.id}>
-                                                <td>
-                                                    {pago.servicio}
-                                                    <button className="btn btn-primary ml-2" onClick={() => handleEditClick(pago.id)}>
-                                                        <FontAwesomeIcon icon={faEdit} />
-                                                    </button>
-                                                    <button className="btn btn-danger ml-2" onClick={() => handleDelete(pago.id)}>
-                                                        <FontAwesomeIcon icon={faTrash} />
-                                                    </button>
+                                                <td className="d-flex justify-content-between align-items-center"> {/* Usamos flexbox para alinear elementos */}
+                                                    <div> {/* Contenedor para el texto */}
+                                                        {pago.servicio}
+                                                    </div>
+                                                    <div> {/* Contenedor para los botones */}
+                                                        <button className="btn btn-primary ml-2" onClick={() => handleEditClick(pago.id)}>
+                                                            <FontAwesomeIcon icon={faEdit} />
+                                                        </button>
+                                                        <button className="btn btn-danger ml-2 pr-8" onClick={() => handleDelete(pago.id)}>
+                                                            <FontAwesomeIcon icon={faTrash} />
+                                                        </button>
+                                                    </div>
                                                 </td>
                                                 <td>{pago.monto}</td>
                                                 <td>{pago.fechapago}</td>
@@ -122,10 +126,8 @@ const DataViewer = () => {
                                 </table>
                             </div>
                         </div>
-                        : <div>CARGANDO</div>
+                        : <div style={{ display: "flex", justifyContent: "center", marginTop: "20%", fontSize: "40px", color: "red" }}>CARGANDO....</div>
                 }
-
-
             </div>
             {showModal && selectedPayment && (<EditModal payment={selectedPayment} showed={showModal} handleClose={handleCloseModal} handleSave={handleSaveChanges}></EditModal>)}
         </>
