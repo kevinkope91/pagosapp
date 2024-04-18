@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
 import { collection, addDoc } from "firebase/firestore"
 import db from '../firebase';
+import { getStorage, ref, uploadBytes} from 'firebase/storage';
+import { storage } from '../firebase';
 
 const PaymentForm = () => {
     const [monto, setMonto] = useState('');
     const [fechaPago, setFechaPago] = useState('');
     const [servicio, setServicio] = useState('');
     const [metodoPago, setMetodoPago] = useState('');
+    const [archivo, setArchivo] = useState(null); // Nuevo estado para manejar el archivo
+    
+
 
 
     const clearFields = () => {
@@ -14,11 +19,23 @@ const PaymentForm = () => {
         setFechaPago(''); // Limpiar el campo después de enviar el formulario
         setServicio(''); // Limpiar el campo después de enviar el formulario
         setMetodoPago(''); // Limpiar el campo después de enviar el formulario
+        setArchivo(null); // Limpiar el archivo después de enviar el formulario
     }
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        setArchivo(file);
+        console.log(file)
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            // Subir el archivo a Firebase Storage
+            const storageRef = ref(storage, archivo.name);
+            await uploadBytes(storageRef,archivo)
+
+
             await addDoc(collection(db, "pagos"), {
                 monto: monto,
                 fechapago: fechaPago,
@@ -96,6 +113,16 @@ const PaymentForm = () => {
                     <option value="tdeb">Tarjeta Debito Naicon</option>
                     <option value="tcred">Tarjeta de Credito Visa</option>
                 </select>
+            </div>
+            <div className="mb-3">
+                <label htmlFor="archivo" className="form-label">Archivo:</label>
+                <input
+                    type="file"
+                    className="form-control"
+                    id="archivo"
+                    onChange={handleFileChange}
+                    required
+                />
             </div>
             <button type="submit" className="btn btn-primary">Registrar Pago</button>
         </form>
