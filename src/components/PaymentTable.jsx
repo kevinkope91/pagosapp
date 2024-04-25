@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faEdit, faTrash, faDownload } from '@fortawesome/free-solid-svg-icons';
 import { collection, getDocs, deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
+import {storage} from '../firebase'
+import { ref, getDownloadURL } from 'firebase/storage';
 import db from '../firebase';
 import EditModal from './EditModal';
 
@@ -53,6 +55,19 @@ const DataViewer = () => {
         }
     };
 
+    const handleDownload = async (nombreArchivo) => {
+        try {
+            // Crear una referencia al archivo en Firebase Storage
+            const fileRef = ref(storage, nombreArchivo);
+            // Obtener la URL de descarga del archivo
+            const url = await getDownloadURL(fileRef);
+            // Iniciar la descarga del archivo
+            window.open(url);
+        } catch (error) {
+            console.error('Error al descargar el archivo:', error);
+        }
+    };
+
     const handleCloseModal = () => {
         setSelectedPayment(null);
         setShowModal(false);
@@ -99,27 +114,30 @@ const DataViewer = () => {
                                             <th>Monto</th>
                                             <th>Fecha Pago</th>
                                             <th>Método de Pago</th>
+                                            <th>Actions</th>
+                                            
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {pagos.map((pago) => (
                                             <tr key={pago.id}>
-                                                <td className="d-flex justify-content-between align-items-center"> {/* Usamos flexbox para alinear elementos */}
-                                                    <div> {/* Contenedor para el texto */}
-                                                        {pago.servicio}
-                                                    </div>
-                                                    <div> {/* Contenedor para los botones */}
-                                                        <button className="btn btn-primary ml-2" onClick={() => handleEditClick(pago.id)}>
-                                                            <FontAwesomeIcon icon={faEdit} />
-                                                        </button>
-                                                        <button className="btn btn-danger ml-2 pr-8" onClick={() => handleDelete(pago.id)}>
-                                                            <FontAwesomeIcon icon={faTrash} />
-                                                        </button>
-                                                    </div>
+                                                <td className="d-flex justify-content-between align-items-center">
+                                                    {pago.servicio}
                                                 </td>
                                                 <td>{pago.monto}</td>
                                                 <td>{pago.fechapago}</td>
                                                 <td>{pago.metodopago}</td>
+                                                <td><div>
+                                                        <button className="btn btn-primary ml-2" onClick={() => handleEditClick(pago.id)}>
+                                                            <FontAwesomeIcon icon={faEdit} />
+                                                        </button>
+                                                        <button className="btn btn-success m-2"  onClick={() => handleDownload(pago.nombrearchivo)}>
+                                                            <FontAwesomeIcon icon={faDownload} />
+                                                        </button>
+                                                        <button className="btn btn-danger ml-2 pr-8" onClick={() => handleDelete(pago.id)}>
+                                                            <FontAwesomeIcon icon={faTrash} />
+                                                        </button>
+                                                    </div></td>
                                             </tr>
                                         ))}
                                     </tbody>
